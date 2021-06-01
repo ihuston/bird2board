@@ -22,11 +22,15 @@ class Pinboard:
         return f"{self.api_url}{action}?auth_token={self.auth_token}&format={self.format}"
 
 
+class Twitter:
+    def parse_json(self, text):
+        pass
+
+
 def main():
     pass
 
 
 if __name__ == "__main__":
     main()
-
 
