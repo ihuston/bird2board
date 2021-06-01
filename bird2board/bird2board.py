@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import json
 import os
 
 import requests
@@ -23,8 +24,22 @@ class Pinboard:
 
 
 class Twitter:
+
     def parse_json(self, text):
-        pass
+        json_dict = json.loads(text)
+        tweets = json_dict['data']['bookmark_timeline']['timeline']['instructions'][0]['entries']
+        extracted_data = []
+
+        for t in tweets:
+            tweet_data = t['content']['itemContent']['tweet']
+            parsed_tweet = {"screen_name": tweet_data['core']['user']['legacy']['screen_name'],
+                            "full_text": tweet_data['legacy']['full_text'],
+                            "rest_id": tweet_data['rest_id']}
+            if len(tweet_data['legacy']['entities']['urls']) > 0:
+                parsed_tweet["expanded_url"] = tweet_data['legacy']['entities']['urls'][0]['expanded_url']
+            extracted_data.append(parsed_tweet)
+
+        return extracted_data
 
 
 def main():
@@ -33,4 +48,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

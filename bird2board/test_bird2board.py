@@ -63,4 +63,6 @@ class TestTwitterBookmarksParse(TestCase):
                     {"screen_name": "my_other_name", "rest_id": 2,
                      "full_text": "my other tweet", "expanded_url": "my_other_url"}]
         twitter = bird2board.Twitter()
-        self.assertListEqual(twitter.parse_json(test_json_text), expected)
+        result = twitter.parse_json(test_json_text)
+        self.assertDictEqual(result[0], expected[0])
+        self.assertDictEqual(result[1], expected[1])
