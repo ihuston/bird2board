@@ -16,11 +16,26 @@ class Pinboard:
             self.auth_token = auth_token
 
     def check_connection(self):
-        req = requests.request("GET", self.prepare_url("update"))
-        return req.ok
+        return self.take_action("update", {}).ok
 
-    def prepare_url(self, action):
-        return f"{self.api_url}{action}?auth_token={self.auth_token}&format={self.format}"
+    def tweet_to_bookmark(self, tweet):
+        bookmark = dict(url=tweet["tweet_url"],
+                        description=tweet["full_text"][:30],
+                        extended=tweet["full_text"],
+                        replace="no",
+                        shared="no",
+                        toread="yes")
+        return bookmark
+
+    def add_bookmark(self, bookmark):
+        return self.take_action("add", bookmark)
+
+    def take_action(self, action, action_params):
+        params = action_params.copy()
+        params["auth_token"] = self.auth_token
+        params["format"] = self.format
+        response = requests.get(self.api_url + action, params)
+        return response
 
 
 class Twitter:
