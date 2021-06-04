@@ -1,7 +1,7 @@
 import json
 from unittest import TestCase
 
-from . import bird2board
+from . import Twitter
 
 
 class TestTwitterBookmarksParse(TestCase):
@@ -49,7 +49,7 @@ class TestTwitterBookmarksParse(TestCase):
                      "full_text": "my other tweet", "expanded_url": "my_other_url",
                      "tweet_url": "https://twitter.com/my_other_name/status/2"}]
 
-        twitter = bird2board.Twitter()
+        twitter = Twitter()
         result = twitter.parse_json(test_json_text)
         self.assertDictEqual(result[0], expected[0])
         self.assertDictEqual(result[1], expected[1])
@@ -78,6 +78,6 @@ class TestTwitterBookmarksParse(TestCase):
                      "full_text": "my tweet",
                      "tweet_url": "https://twitter.com/my_name/status/1"}]
 
-        twitter = bird2board.Twitter()
+        twitter = Twitter()
         result = twitter.parse_json(test_json_text)
         self.assertDictEqual(result[0], expected[0])
