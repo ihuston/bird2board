@@ -8,6 +8,7 @@ import requests
 class Pinboard:
     format = "json"
     api_url = "https://api.pinboard.in/v1/posts/"
+    default_tags = ["bird2board", "from:twitter_bookmarks"]
 
     def __init__(self, auth_token=None):
         if auth_token is None:
@@ -18,10 +19,14 @@ class Pinboard:
     def check_connection(self):
         return self.take_action("update", {}).ok
 
-    def tweet_to_bookmark(self, tweet):
+    def tweet_to_bookmark(self, tweet, default_tags=None):
+        if default_tags is None:
+            default_tags = self.default_tags
+
         bookmark = dict(url=tweet["tweet_url"],
                         description=tweet["full_text"][:30],
                         extended=tweet["full_text"],
+                        tags=self.tag_string(default_tags),
                         replace="no",
                         shared="no",
                         toread="yes")
@@ -29,6 +34,9 @@ class Pinboard:
 
     def add_bookmark(self, bookmark):
         return self.take_action("add", bookmark)
+
+    def tag_string(self, tags):
+        return " ".join(tags)
 
     def take_action(self, action, action_params):
         params = action_params.copy()
