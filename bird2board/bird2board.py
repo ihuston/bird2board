@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import json
 import os
+from datetime import datetime, timedelta
+from time import sleep
 
 import requests
 
@@ -9,6 +11,8 @@ class Pinboard:
     format = "json"
     api_url = "https://api.pinboard.in/v1/posts/"
     default_tags = ["bird2board", "from:twitter_bookmarks"]
+    last_call = None
+    api_wait = timedelta(seconds=3)
 
     def __init__(self, auth_token=None):
         if auth_token is None:
@@ -39,11 +43,22 @@ class Pinboard:
         return " ".join(tags)
 
     def take_action(self, action, action_params):
+        self.sleep_if_needed(self.last_call)
+
         params = action_params.copy()
         params["auth_token"] = self.auth_token
         params["format"] = self.format
-        response = requests.get(self.api_url + action, params)
+        response = requests.get(self.api_url + action, params, timeout=3)
         return response
+
+    def sleep_if_needed(self, last_call: datetime = None, wait=None):
+        if wait is None:
+            wait = self.api_wait
+        if last_call is not None:
+            end_of_wait = last_call + wait
+            seconds_left = (end_of_wait - datetime.now()).total_seconds()
+            sleep(seconds_left)
+        return
 
 
 class Twitter:

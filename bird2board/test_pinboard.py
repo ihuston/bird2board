@@ -1,6 +1,7 @@
 import json
 import os
 import unittest
+from datetime import datetime, timedelta
 from unittest import TestCase
 
 from . import bird2board
@@ -53,3 +54,9 @@ class TestPinboard(TestCase):
         saved_bookmark = json.loads(response.content)["posts"][0]
         saved_tags = saved_bookmark["tags"].split(" ")
         self.assertSetEqual(set(saved_tags), {"bird2board", "from:twitter_bookmarks"})
+
+    def test_sleep_between_calls(self):
+        pinboard = bird2board.Pinboard("mytoken")
+        last_call = datetime.now()
+        pinboard.sleep_if_needed(last_call=last_call, wait=timedelta(seconds=0.1))
+        self.assertGreater(datetime.now() - last_call, timedelta(seconds=0.1))
