@@ -1,2 +1,2 @@
-from board import Pinboard
-from bird import Twitter
+from .board import Pinboard
+from .bird import Twitter
