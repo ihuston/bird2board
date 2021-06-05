@@ -20,12 +20,13 @@ class TestPinboard(TestCase):
         pinboard = Pinboard("mytoken")
         tweet = {"screen_name": "my_name", "rest_id": 1,
                  "full_text": "my tweet",
-                 "tweet_url": "https://twitter.com/my_name/status/1"}
+                 "tweet_url": "https://twitter.com/my_name/status/1",
+                 "tags": ["devops", "cicd"]}
         bookmark = pinboard.tweet_to_bookmark(tweet)
         expected = {"url": "https://twitter.com/my_name/status/1",
                     "description": "my tweet",
                     "extended": "my tweet",
-                    "tags": "bird2board from:twitter_bookmarks",
+                    "tags": "bird2board from:twitter_bookmarks devops cicd",
                     "replace": "no",
                     "shared": "no",
                     "toread": "yes"}

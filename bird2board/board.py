@@ -24,11 +24,14 @@ class Pinboard:
     def tweet_to_bookmark(self, tweet, default_tags=None):
         if default_tags is None:
             default_tags = self.default_tags
-
+        tags = []
+        tags.extend(default_tags)
+        if "tags" in tweet:
+            tags.extend(tweet["tags"])
         bookmark = dict(url=tweet["tweet_url"],
                         description=tweet["full_text"][:30],
                         extended=tweet["full_text"],
-                        tags=self.tag_string(default_tags),
+                        tags=self.tag_string(tags),
                         replace="no",
                         shared="no",
                         toread="yes")

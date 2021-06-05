@@ -83,5 +83,3 @@ class TestTwitterBookmarksParse(TestCase):
         twitter = Twitter()
         result = twitter.parse_json(test_json_text)
         self.assertDictEqual(result[0], expected[0])
-
-
