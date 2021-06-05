@@ -17,7 +17,9 @@ class Twitter:
             parsed_tweet = {"screen_name": screen_name,
                             "full_text": tweet_data['legacy']['full_text'],
                             "rest_id": rest_id,
-                            "tweet_url": self.tweet_url(screen_name, rest_id)}
+                            "tweet_url": self.tweet_url(screen_name, rest_id),
+                            "tags": self.extract_tags(tweet_data)}
+
             if len(tweet_data['legacy']['entities']['urls']) > 0:
                 parsed_tweet["expanded_url"] = tweet_data['legacy']['entities']['urls'][0]['expanded_url']
             extracted_data.append(parsed_tweet)
@@ -26,3 +28,6 @@ class Twitter:
 
     def tweet_url(self, screen_name, rest_id):
         return f"https://twitter.com/{screen_name}/status/{rest_id}"
+
+    def extract_tags(self, tweet_data):
+        return [h['text'] for h in tweet_data['legacy']['entities']['hashtags']]
