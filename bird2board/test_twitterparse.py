@@ -6,40 +6,46 @@ from . import Twitter
 
 class TestTwitterBookmarksParse(TestCase):
 
+    def setUp(self) -> None:
+        self.t1 = {'content':
+                       {'entryType': 'Tweet',
+                        'itemContent':
+                            {'tweet':
+                                 {'legacy':
+                                      {'full_text': "my tweet",
+                                       'entities': {'urls': [{'expanded_url': "my_url"}]}
+                                       },
+                                  'core':
+                                      {'user': {'legacy': {'screen_name': "my_name"}}},
+                                  'rest_id': 1
+                                  }
+                             }
+                        }
+                   }
+
+        self.t2 = {'content':
+                       {'entryType': 'Tweet',
+                        'itemContent':
+                            {'tweet':
+                                 {'legacy':
+                                      {'full_text': "my other tweet",
+                                       'entities': {'urls': [{'expanded_url': "my_other_url"}]}
+                                       },
+                                  'core':
+                                      {'user': {'legacy': {'screen_name': "my_other_name"}}},
+                                  'rest_id': 2
+                                  }
+                             }
+                        }
+                   }
+
+        self.end_marker = {'content':
+                               {'entryType': 'TimelineTimelineCursor'}}
+
     def test_parse_json(self):
-        t1 = {'content':
-                  {'itemContent':
-                       {'tweet':
-                            {'legacy':
-                                 {'full_text':
-                                      "my tweet",
-                                  'entities': {'urls': [{'expanded_url': "my_url"}]}
-                                  },
-                             'core':
-                                 {'user': {'legacy': {'screen_name': "my_name"}}},
-                             'rest_id': 1
-                             }
-                        }
-                   }
-              }
-
-        t2 = {'content':
-                  {'itemContent':
-                       {'tweet':
-                            {'legacy':
-                                 {'full_text':
-                                      "my other tweet",
-                                  'entities': {'urls': [{'expanded_url': "my_other_url"}]}
-                                  },
-                             'core':
-                                 {'user': {'legacy': {'screen_name': "my_other_name"}}},
-                             'rest_id': 2
-                             }
-                        }
-                   }
-              }
-
-        test_json_dict = {'data': {'bookmark_timeline': {'timeline': {'instructions': [{'entries': [t1, t2]}]}}}}
+        test_json_dict = {'data': {'bookmark_timeline':
+                                       {'timeline': {'instructions':
+                                                         [{'entries': [self.t1, self.t2, self.end_marker]}]}}}}
         test_json_text = json.dumps(test_json_dict)
 
         expected = [{"screen_name": "my_name", "rest_id": 1,
@@ -55,21 +61,8 @@ class TestTwitterBookmarksParse(TestCase):
         self.assertDictEqual(result[1], expected[1])
 
     def test_no_urls(self):
-        t1 = {'content':
-                  {'itemContent':
-                       {'tweet':
-                            {'legacy':
-                                 {'full_text':
-                                      "my tweet",
-                                  'entities': {'urls': []}
-                                  },
-                             'core':
-                                 {'user': {'legacy': {'screen_name': "my_name"}}},
-                             'rest_id': 1
-                             }
-                        }
-                   }
-              }
+        t1 = self.t1.copy()
+        t1['content']['itemContent']['tweet']['legacy']['entities']['urls'] = []
 
         test_json_dict = {'data': {'bookmark_timeline': {'timeline': {'instructions': [{'entries': [t1]}]}}}}
         test_json_text = json.dumps(test_json_dict)

@@ -9,6 +9,8 @@ class Twitter:
         extracted_data = []
 
         for t in tweets:
+            if t['content']['entryType'] == "TimelineTimelineCursor":  # end marker
+                break
             tweet_data = t['content']['itemContent']['tweet']
             screen_name = tweet_data['core']['user']['legacy']['screen_name']
             rest_id = tweet_data['rest_id']
