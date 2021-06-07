@@ -4,6 +4,8 @@ import unittest
 from datetime import datetime, timedelta
 from unittest import TestCase
 
+from requests import HTTPError
+
 from . import Pinboard
 
 
@@ -55,6 +57,19 @@ class TestPinboard(TestCase):
         saved_bookmark = json.loads(response.content)["posts"][0]
         saved_tags = saved_bookmark["tags"].split(" ")
         self.assertSetEqual(set(saved_tags), {"bird2board", "from:twitter_bookmarks"})
+
+    def test_failed_save(self):
+        url = "https://twitter.com/xkcd/status/1399524012531896321"
+        bookmark = {"url": url,
+                    "description": "Next slide please",
+                    "extended": "Next slide please",
+                    "tags": "bird2board from:twitter_bookmarks",
+                    "replace": "yes",
+                    "shared": "no",
+                    "toread": "yes"}
+        pinboard = Pinboard("mytoken")
+        with self.assertRaises(HTTPError):
+            pinboard.add_bookmark(bookmark)
 
     def test_sleep_between_calls(self):
         pinboard = Pinboard("mytoken")

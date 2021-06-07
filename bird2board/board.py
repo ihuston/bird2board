@@ -50,6 +50,7 @@ class Pinboard:
         params["auth_token"] = self.auth_token
         params["format"] = self.format
         response = requests.get(self.api_url + action, params, timeout=3)
+        response.raise_for_status()
         return response
 
     def sleep_if_needed(self, last_call: datetime = None, wait=None):
