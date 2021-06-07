@@ -10,34 +10,45 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-def convert_single_file(file_path: pathlib.Path, pinboard_token):
-    try:
-        json_text = file_path.read_text()
-    except IOError:
-        logging.error(f"Error reading file {file_path}")
-        raise
+class Bird2Board:
 
-    logging.debug("Loaded JSON from file.")
+    def __init__(self, pinboard_token):
+        self.pinboard = Pinboard(auth_token=pinboard_token)
+        self.twitter = Twitter()
 
-    tw = Twitter()
-    tweets = tw.parse_json(json_text)
-    logging.debug(f"Parsed {len(tweets)} tweets from file.")
-
-    pb = Pinboard(auth_token=pinboard_token)
-    for tweet in tweets:
-        bookmark = pb.tweet_to_bookmark(tweet)
+    def convert_single_file(self, file_path: pathlib.Path):
         try:
-            pb.add_bookmark(bookmark)
-        except Exception:
-            logging.error(f"Error saving bookmark to Pinboard {bookmark['url']}")
+            json_text = file_path.read_text()
+        except IOError:
+            logging.error(f"Error reading file {file_path}")
             raise
-        else:
-            logging.debug(f"Saved bookmark to Pinboard: {bookmark['url']}")
+
+        logging.debug("Loaded JSON from file.")
+
+        tweets = self.twitter.parse_json(json_text)
+        logging.debug(f"Parsed {len(tweets)} tweets from file.")
+
+        for tweet in tweets:
+            bookmark = self.pinboard.tweet_to_bookmark(tweet)
+            try:
+                self.pinboard.add_bookmark(bookmark)
+            except Exception:
+                logging.error(f"Error saving bookmark to Pinboard {bookmark['url']}")
+                raise
+            else:
+                logging.debug(f"Saved bookmark to Pinboard: {bookmark['url']}")
+        return
+
+    def convert_directory(self, tweet_directory: pathlib.Path):
+        for p in tweet_directory.iterdir():
+            print(p.suffix)
+            if p.suffix == ".json":
+                self.convert_single_file(p)
 
 
-def main():
+def convert():
     pass
 
 
 if __name__ == "__main__":
-    main()
+    convert()

@@ -1,10 +1,11 @@
 import pathlib
+import unittest.mock
 from unittest import TestCase, mock
 
 import bird2board.app
 
 
-class TestApp(TestCase):
+class TestBird2Board(TestCase):
     tweets = [{"screen_name": "my_name", "rest_id": 1,
                "full_text": "my tweet", "expanded_url": "my_url",
                "tweet_url": "https://twitter.com/my_name/status/1",
@@ -32,9 +33,45 @@ class TestApp(TestCase):
         mock_tweet_to_bookmark.return_value = self.bookmark
         mock_add_bookmark.return_value = True
 
-        bird2board.app.convert_single_file(f, "my_token")
+        b2b = bird2board.app.Bird2Board("my_token")
+        b2b.convert_single_file(f)
 
         mock_parse_json.assert_called_with("my_file_content")
-        mock_tweet_to_bookmark.assert_any_call(self.tweets[1])
+        mock_tweet_to_bookmark.assert_any_call(self.tweets[0])
         mock_tweet_to_bookmark.assert_any_call(self.tweets[1])
         mock_add_bookmark.assert_called_with(self.bookmark)
+
+    @mock.patch('bird2board.app.pathlib')
+    @mock.patch.object(bird2board.app.Bird2Board, 'convert_single_file')
+    def test_convert_directory(self, mock_convert_file, mock_pathlib):
+        d = mock_pathlib.Path("./my_test_dir/")
+        f1 = pathlib.Path("./testfile.json")
+        f2 = pathlib.Path("./testfile2.json")
+        d.iterdir.return_value = [f1, f2]
+        mock_convert_file.return_value = True
+
+        b2b = bird2board.app.Bird2Board("my_token")
+        b2b.convert_directory(d)
+
+        d.iterdir.assert_called()
+        mock_convert_file.assert_any_call(f1)
+        mock_convert_file.assert_any_call(f2)
+
+    @mock.patch('bird2board.app.pathlib')
+    @mock.patch.object(bird2board.app.Bird2Board, 'convert_single_file')
+    def test_filter_non_json(self, mock_convert_file, mock_pathlib):
+        d = mock_pathlib.Path("./my_test_dir/")
+        f1 = pathlib.Path("./testfile.json")
+        f2 = pathlib.Path("./testfile2.txt")
+        f3 = pathlib.Path("./testfile3.json")
+        d.iterdir.return_value = [f1, f2, f3]
+        mock_convert_file.return_value = True
+
+        b2b = bird2board.app.Bird2Board("my_token")
+        b2b.convert_directory(d)
+
+        d.iterdir.assert_called()
+        mock_convert_file.assert_any_call(f1)
+        mock_convert_file.assert_any_call(f3)
+        assert unittest.mock.call(f2) not in mock_convert_file.call_args_list
+
