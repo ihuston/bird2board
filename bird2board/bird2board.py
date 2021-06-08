@@ -6,8 +6,8 @@ from bird2board import Pinboard, Twitter
 
 class Bird2Board:
 
-    def __init__(self, pinboard_token):
-        self.pinboard = Pinboard(auth_token=pinboard_token)
+    def __init__(self, pinboard_token, replace=False, shared=False, toread=False):
+        self.pinboard = Pinboard(auth_token=pinboard_token, replace=replace, shared=shared, toread=toread)
         self.twitter = Twitter()
 
     def convert_single_file(self, file_path: pathlib.Path):

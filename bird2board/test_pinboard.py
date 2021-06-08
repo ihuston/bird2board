@@ -31,7 +31,7 @@ class TestPinboard(TestCase):
                     "tags": "bird2board from:twitter_bookmarks devops cicd",
                     "replace": "no",
                     "shared": "no",
-                    "toread": "yes"}
+                    "toread": "no"}
         self.assertDictEqual(bookmark, expected)
 
     def test_tag_string(self):

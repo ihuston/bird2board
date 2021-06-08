@@ -12,11 +12,14 @@ class Pinboard:
     last_call = None
     api_wait = timedelta(seconds=3)
 
-    def __init__(self, auth_token=None):
+    def __init__(self, auth_token=None, replace=False, shared=False, toread=False):
         if auth_token is None:
             self.auth_token = os.getenv("PINBOARD_TOKEN")
         else:
             self.auth_token = auth_token
+        self.replace = replace
+        self.shared = shared
+        self.toread = toread
 
     def check_connection(self):
         return self.take_action("update", {}).ok
@@ -32,9 +35,9 @@ class Pinboard:
                         description=tweet["full_text"][:30],
                         extended=tweet["full_text"],
                         tags=self.tag_string(tags),
-                        replace="no",
-                        shared="no",
-                        toread="yes")
+                        replace="yes" if self.replace else "no",
+                        shared="yes" if self.shared else "no",
+                        toread="yes" if self.toread else "no")
         return bookmark
 
     def add_bookmark(self, bookmark):

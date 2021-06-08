@@ -37,3 +37,9 @@ class MyTestCase(unittest.TestCase):
         result = runner.invoke(convert, "-p my_token .")
         mock_convert_directory.assert_called_once_with(pathlib.Path("."))
         assert result.exit_code == 1
+
+    @mock.patch('bird2board.app.Bird2Board')
+    def test_convert_options(self, mock_b2b):
+        runner = CliRunner()
+        result = runner.invoke(convert, "-p my_token --replace --shared --toread .")
+        mock_b2b.assert_called_with(pinboard_token="my_token", shared=True, replace=True, toread=True)
