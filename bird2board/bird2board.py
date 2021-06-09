@@ -16,11 +16,16 @@ class Bird2Board:
         except IOError:
             logging.error(f"Error reading file {file_path}")
             raise
+        else:
+            logging.info(f"Loaded JSON from file {file_path}.")
 
-        logging.info("Loaded JSON from file.")
-
-        tweets = self.twitter.parse_json(json_text)
-        logging.info(f"Parsed {len(tweets)} tweets from file.")
+        try:
+            tweets = self.twitter.parse_json(json_text)
+        except Exception:
+            logging.error("Error parsing bookmark data from file.")
+            raise
+        else:
+            logging.info(f"Parsed {len(tweets)} tweets from file.")
 
         for tweet in tweets:
             bookmark = self.pinboard.tweet_to_bookmark(tweet)
