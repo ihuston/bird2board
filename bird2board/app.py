@@ -6,17 +6,21 @@ import logging
 
 from bird2board.bird2board import Bird2Board
 
-logging.basicConfig(level=logging.INFO)
-
 
 @click.command()
+@click.option('--debug', is_flag=True, default=False, help='enable debug logging')
 @click.option('--toread/--not-toread', default=False, help='set Pinboard bookmarks as "to read"')
 @click.option('--shared/--not-shared', default=False, help='set Pinboard bookmarks as shared')
 @click.option('--replace/--no-replace', default=False, help='replace existing Pinboard bookmark for an URL')
 @click.option('-p', '--pinboard-token', required=True, help='user token for Pinboard API')
 @click.argument('path', type=click.Path(exists=True, path_type=pathlib.Path, dir_okay=True, file_okay=True))
-def convert(path, pinboard_token, replace, shared, toread):
+def convert(path, pinboard_token, replace, shared, toread, debug):
     """Save Twitter Bookmark .json file(s) at PATH (file or directory) to account using PINBOARD TOKEN."""
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
     b2b = Bird2Board(pinboard_token=pinboard_token, replace=replace, shared=shared, toread=toread)
     try:
         b2b.convert_directory(path)
