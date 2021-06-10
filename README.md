@@ -6,7 +6,14 @@ Convert bird based bookmarks to board based ones.
 This tool takes raw [Twitter Bookmarks](https://twitter.com/i/bookmarks) data 
 and pushes the bookmarks to [Pinboard](https://pinboard.in).
 
-Usage:
+## Installation:
+1. Clone this repository
+2. Install with `pip`
+```
+#> cd bird2board
+#> pip install .
+```
+## Usage:
 
 First download the raw Twitter bookmarks data:
 
@@ -26,7 +33,8 @@ Next find your Pinboard API token:
 
 Then use the tool to convert the bookmark data and save in Pinboard:
 ```
-Usage: python -m bird2board.app [OPTIONS] PATH
+#> bird2board --help
+Usage: bird2board [OPTIONS] PATH
 
   Save Twitter Bookmark .json file(s) at PATH (file or directory) to account
   using PINBOARD TOKEN.
@@ -40,13 +48,13 @@ Options:
 ```
 Example usage:
 ```
-> python -m bird2board.app -p MY_TOKEN --toread ./responses/
+#> bird2board -p MY_TOKEN --toread ./responses/
 ```
 Instead of providing the Pinboard API token as an option to the script, 
 you can set the `$BIRD2BOARD_PINBOARD_TOKEN` environmental variable.
 ```
-> export BIRD2BOARD_PINBOARD_TOKEN=MY_TOKEN
-> python -m bird2board.app --toread ./responses/
+#> export BIRD2BOARD_PINBOARD_TOKEN=MY_TOKEN
+#> bird2board --toread ./responses/
 ```
 
 Notes: 
