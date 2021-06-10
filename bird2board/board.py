@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import timedelta, datetime
 from time import sleep
@@ -54,6 +55,7 @@ class Pinboard:
         params["format"] = self.format
         response = requests.get(self.api_url + action, params, timeout=3)
         response.raise_for_status()
+        self.last_call = datetime.now()
         return response
 
     def sleep_if_needed(self, last_call: datetime = None, wait=None):
@@ -62,5 +64,7 @@ class Pinboard:
         if last_call is not None:
             end_of_wait = last_call + wait
             seconds_left = (end_of_wait - datetime.now()).total_seconds()
+            logging.debug(f"Sleeping for {seconds_left} seconds...")
             sleep(seconds_left)
+            logging.debug(f"Sleep over.")
         return
