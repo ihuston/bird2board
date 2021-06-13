@@ -12,7 +12,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 if "GITHUB_WORKFLOW" in os.environ:
     print(f"Running inside {os.getenv('GITHUB_WORKFLOW')}")
     if os.getenv('GITHUB_WORKFLOW') == "Upload Python Package on Test PyPI":
-        version = version + '.dev' + os.getenv("GITHUB_SHA")
+        version = version + '.dev0+g' + os.getenv("GITHUB_SHA")
 
 
 setup(
