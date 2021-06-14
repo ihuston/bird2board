@@ -9,7 +9,8 @@
 name: Upload Python Package on Test PyPI
 
 on:
-  push
+  push:
+    tags
 
 jobs:
   deploy:
