@@ -9,15 +9,11 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-if "GITHUB_WORKFLOW" in os.environ:
-    print(f"Running inside {os.getenv('GITHUB_WORKFLOW')}")
-    if os.getenv('GITHUB_WORKFLOW') == "Upload Python Package on Test PyPI":
-        version = version + '.dev0+g' + os.getenv("GITHUB_SHA")
-
 
 setup(
     name='bird2board',
-    version=version,
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     packages=['bird2board'],
     url='https://github.com/ihuston/bird2board',
     license='MIT',
