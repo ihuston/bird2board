@@ -4,6 +4,7 @@ import unittest
 from datetime import datetime, timedelta
 from unittest import TestCase
 
+import pytest
 from requests import HTTPError
 
 from . import Pinboard
@@ -76,3 +77,19 @@ class TestPinboard(TestCase):
         last_call = datetime.now()
         pinboard.sleep_if_needed(last_call=last_call, wait=timedelta(seconds=0.1))
         self.assertGreater(datetime.now() - last_call, timedelta(seconds=0.1))
+
+
+# Outside Test Class
+@pytest.mark.parametrize('long, short',
+                         [("my tweet", "my tweet"),
+                          ("my longer tweet that should be shortened a bit I think",
+                           "my longer tweet that should be shortened a bit I..."),
+                          ("ifthestringhasnowhitespaceitsgoingtobehardtosplitinagoodplace",
+                           "ifthestringhasnowhitespaceitsgoingtobehardtospliti...")])
+def test_shorten_description(long, short):
+    pinboard = Pinboard("mytoken")
+    tweet = {"screen_name": "my_name", "rest_id": 1, "full_text": long,
+             "tweet_url": "https://twitter.com/my_name/status/1", "tags": ["devops", "cicd"]}
+
+    bookmark = pinboard.tweet_to_bookmark(tweet)
+    assert bookmark["description"] == short

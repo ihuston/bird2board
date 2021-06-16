@@ -33,13 +33,21 @@ class Pinboard:
         if "tags" in tweet:
             tags.extend(tweet["tags"])
         bookmark = dict(url=tweet["tweet_url"],
-                        description=tweet["full_text"][:30],
+                        description=self.shorten_for_title(tweet["full_text"]),
                         extended=tweet["full_text"],
                         tags=self.tag_string(tags),
                         replace="yes" if self.replace else "no",
                         shared="yes" if self.shared else "no",
                         toread="yes" if self.toread else "no")
         return bookmark
+
+    def shorten_for_title(self, text):
+        result = text[:50]
+        if len(text) > 50:
+            split = result.split(" ")
+            result = " ".join(split[:1] + split[1:-1])
+            result = result + "..."
+        return result
 
     def add_bookmark(self, bookmark):
         return self.take_action("add", bookmark)
