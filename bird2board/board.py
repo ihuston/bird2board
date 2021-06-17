@@ -61,10 +61,20 @@ class Pinboard:
         params = action_params.copy()
         params["auth_token"] = self.auth_token
         params["format"] = self.format
-        response = requests.get(self.api_url + action, params, timeout=3)
+        response = self.call_api(action, params)
         response.raise_for_status()
         self.last_call = datetime.now()
         return response
+
+    def call_api(self, action, params, timeout=3, call_count=0):
+        try:
+            resp = requests.get(self.api_url + action, params, timeout=timeout)
+        except requests.exceptions.RequestException:
+            if call_count <= 1:  # tries 3 times in total
+                resp = self.call_api(action, params, timeout=timeout, call_count=call_count+1)
+            else:
+                raise
+        return resp
 
     def sleep_if_needed(self, last_call: datetime = None, wait=None):
         if wait is None:

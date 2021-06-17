@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 import pytest
+import requests
+import responses
 from requests import HTTPError
 
 from . import Pinboard
@@ -77,6 +79,31 @@ class TestPinboard(TestCase):
         last_call = datetime.now()
         pinboard.sleep_if_needed(last_call=last_call, wait=timedelta(seconds=0.1))
         self.assertGreater(datetime.now() - last_call, timedelta(seconds=0.1))
+
+    @responses.activate
+    def test_retries(self):
+        pinboard = Pinboard("mytoken")
+        posts_add = "https://api.pinboard.in/v1/posts/add"
+        responses.add(responses.GET, posts_add,
+                      body=requests.exceptions.ReadTimeout())
+        responses.add(responses.GET, posts_add,
+                      body=requests.exceptions.ReadTimeout())
+        responses.add(responses.GET, posts_add, status=200)
+
+        resp = pinboard.call_api("add", {})
+        assert resp.status_code == 200
+        assert responses.assert_call_count(posts_add, 3)
+
+        posts_add = "https://api.pinboard.in/v1/posts/add2"
+        responses.add(responses.GET, posts_add,
+                      body=requests.exceptions.ReadTimeout())
+        responses.add(responses.GET, posts_add,
+                      body=requests.exceptions.ReadTimeout())
+        responses.add(responses.GET, posts_add,
+                      body=requests.exceptions.ReadTimeout())
+
+        with self.assertRaises(requests.exceptions.ReadTimeout):
+            resp = pinboard.call_api("add2", {})
 
 
 # Outside Test Class
