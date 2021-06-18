@@ -85,9 +85,9 @@ class TestPinboard(TestCase):
         pinboard = Pinboard("mytoken")
         posts_add = "https://api.pinboard.in/v1/posts/add"
         responses.add(responses.GET, posts_add,
-                      body=requests.exceptions.ReadTimeout())
+                      body=requests.exceptions.ConnectTimeout())
         responses.add(responses.GET, posts_add,
-                      body=requests.exceptions.ReadTimeout())
+                      body=requests.exceptions.ConnectTimeout())
         responses.add(responses.GET, posts_add, status=200)
 
         resp = pinboard.call_api("add", {})

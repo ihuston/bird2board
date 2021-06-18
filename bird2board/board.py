@@ -4,6 +4,8 @@ from datetime import timedelta, datetime
 from time import sleep
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 
 class Pinboard:
@@ -12,6 +14,8 @@ class Pinboard:
     default_tags = ["bird2board", "from:twitter_bookmarks"]
     last_call = None
     api_wait = timedelta(seconds=3)
+    retry_strategy = Retry(total=3, backoff_factor=1)
+    adapter = HTTPAdapter(max_retries=retry_strategy)
 
     def __init__(self, auth_token=None, replace=False, shared=False, toread=False):
         if auth_token is None:
@@ -21,6 +25,9 @@ class Pinboard:
         self.replace = replace
         self.shared = shared
         self.toread = toread
+        self.http = requests.Session()
+        self.http.mount("http://", self.adapter)
+        self.http.mount("https://", self.adapter)
 
     def check_connection(self):
         return self.take_action("update", {}).ok
@@ -68,8 +75,8 @@ class Pinboard:
 
     def call_api(self, action, params, timeout=3, call_count=0):
         try:
-            resp = requests.get(self.api_url + action, params, timeout=timeout)
-        except requests.exceptions.RequestException:
+            resp = self.http.get(self.api_url + action, params=params, timeout=timeout)
+        except requests.exceptions.ConnectTimeout:
             if call_count <= 1:  # tries 3 times in total
                 resp = self.call_api(action, params, timeout=timeout, call_count=call_count+1)
             else:
