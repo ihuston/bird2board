@@ -1,6 +1,8 @@
 import logging
 import pathlib
 
+import requests
+
 from bird2board import Pinboard, Twitter
 
 
@@ -22,7 +24,7 @@ class Bird2Board:
         try:
             tweets = self.twitter.parse_json(json_text)
         except Exception:
-            logging.error("Error parsing bookmark data from file.")
+            logging.exception(f"Error parsing bookmark data from file {file_path}.")
             raise
         else:
             logging.info(f"Parsed {len(tweets)} tweets from file.")
@@ -36,12 +38,19 @@ class Bird2Board:
                 raise
             else:
                 logging.info(f"Saved bookmark to Pinboard: {bookmark['url']}")
+        logging.info(f"Converted tweets from {file_path}.")
         return
 
     def convert_directory(self, tweet_directory: pathlib.Path):
         if tweet_directory.is_file():
             self.convert_single_file(tweet_directory)
         else:
+            files_with_errors = []
             for p in tweet_directory.iterdir():
                 if p.suffix == ".json":
-                    self.convert_single_file(p)
+                    try:
+                        self.convert_single_file(p)
+                    except (ValueError, KeyError, IOError, requests.exceptions.HTTPError):
+                        logging.info(f"Error with file {p}, moving to next file.")
+                        files_with_errors.append(p)
+            logging.info(f"Files with errors during processing: {files_with_errors}")

@@ -1,4 +1,5 @@
 import json
+import logging
 
 
 class Twitter:
@@ -10,9 +11,18 @@ class Twitter:
 
         for t in tweets:
             if t['content']['entryType'] == "TimelineTimelineCursor":  # end marker
-                break
+                logging.debug("Skipping end marker.")
+                continue
             tweet_data = t['content']['itemContent']['tweet']
-            screen_name = tweet_data['core']['user']['legacy']['screen_name']
+            if 'core' not in tweet_data:
+                logging.debug(f"Skipping empty tweet: {tweet_data}")
+                continue
+            try:
+                screen_name = tweet_data['core']['user']['legacy']['screen_name']
+            except KeyError:
+                logging.error(f"expected structure not found in tweet_data: {tweet_data.keys()}")
+                logging.debug(tweet_data)
+                raise
             rest_id = tweet_data['rest_id']
             parsed_tweet = {"screen_name": screen_name,
                             "full_text": tweet_data['legacy']['full_text'],
