@@ -46,11 +46,14 @@ class Bird2Board:
             self.convert_single_file(tweet_directory)
         else:
             files_with_errors = []
-            for p in tweet_directory.iterdir():
+            dir_size = len(list(tweet_directory.iterdir()))
+            logging.info(f"Converting directory with {dir_size} possible files.")
+            for i, p in enumerate(tweet_directory.iterdir()):
                 if p.suffix == ".json":
                     try:
                         self.convert_single_file(p)
                     except (ValueError, KeyError, IOError, requests.exceptions.HTTPError):
                         logging.info(f"Error with file {p}, moving to next file.")
                         files_with_errors.append(p)
+                logging.info(f"Converted file {i} of {dir_size}.")
             logging.info(f"Files with errors during processing: {files_with_errors}")
