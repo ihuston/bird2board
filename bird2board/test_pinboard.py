@@ -105,6 +105,16 @@ class TestPinboard(TestCase):
         with self.assertRaises(requests.exceptions.ReadTimeout):
             resp = pinboard.call_api("add2", {})
 
+    @responses.activate
+    def test_user_agent(self):
+        pinboard = Pinboard("mytoken")
+        posts_add = "https://api.pinboard.in/v1/posts/add"
+        responses.add(responses.GET, posts_add, status=200)
+
+        resp = pinboard.call_api("add", {})
+        assert resp.status_code == 200
+        assert "bird2board" in responses.calls[0].request.headers['User-Agent']
+
 
 # Outside Test Class
 @pytest.mark.parametrize('long, short',

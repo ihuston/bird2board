@@ -26,6 +26,8 @@ class Pinboard:
         self.shared = shared
         self.toread = toread
         self.http = requests.Session()
+        current_user_agent = self.http.headers['User-Agent']
+        self.http.headers.update({'User-Agent': current_user_agent + " bird2board"})
         self.http.mount("http://", self.adapter)
         self.http.mount("https://", self.adapter)
 
