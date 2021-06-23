@@ -55,5 +55,6 @@ class Bird2Board:
                     except (ValueError, KeyError, IOError, requests.exceptions.HTTPError):
                         logging.info(f"Error with file {p}, moving to next file.")
                         files_with_errors.append(p)
-                logging.info(f"Converted file {i} of {dir_size}.")
+                logging.info(f"Converted file {i+1} of {dir_size}.")
+                logging.debug(f"Files with errors so far: {files_with_errors}")
             logging.info(f"Files with errors during processing: {files_with_errors}")
