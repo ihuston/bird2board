@@ -14,44 +14,41 @@ def tweet_url(screen_name, rest_id):
 
 
 def extract_tags(tweet_data):
-    return [h['text'] for h in tweet_data['legacy']['entities']['hashtags']]
+    if "hashtags" in tweet_data['entities']:
+        return [h['text'] for h in tweet_data['entities']['hashtags']]
+    else:
+        return []
 
 
 class Twitter:
 
     def parse_json(self, text):
         json_dict = json.loads(text)
-        tweets = json_dict['data']['bookmark_timeline']['timeline']['instructions'][0]['entries']
+        tweets = json_dict['globalObjects']['tweets']
+        users = json_dict['globalObjects']['users']
         extracted_data = []
 
-        for t in tweets:
-            if t['content']['entryType'] == "TimelineTimelineCursor":  # end marker
-                logging.debug("Skipping end marker.")
-                continue
-            tweet_data = t['content']['itemContent']['tweet']
-            if 'core' not in tweet_data:
-                logging.debug(f"Skipping empty tweet: {tweet_data}")
-                continue
-            parsed_tweet = self.parse_single_tweet(tweet_data)
+        for t in tweets.values():
+            parsed_tweet = self.parse_single_tweet(t, users)
             extracted_data.append(parsed_tweet)
-
         return extracted_data
 
-    def parse_single_tweet(self, tweet_data):
+    def parse_single_tweet(self, tweet_data, users):
         try:
-            screen_name = tweet_data['core']['user']['legacy']['screen_name']
+            screen_name = users[tweet_data['user_id_str']]['screen_name']
         except KeyError:
-            logging.error(f"expected structure not found in tweet_data: {tweet_data.keys()}")
-            logging.debug(tweet_data)
+            logging.error(f"expected structure not found in users: {users.keys()}")
+            logging.debug(users)
             raise
-        rest_id = tweet_data['rest_id']
+        id_str = tweet_data['id_str']
         parsed_tweet = {"screen_name": screen_name,
-                        "full_text": tweet_data['legacy']['full_text'],
-                        "rest_id": rest_id,
-                        "tweet_url": tweet_url(screen_name, rest_id),
+                        "full_text": tweet_data['full_text'],
+                        "rest_id": id_str,
+                        "tweet_url": tweet_url(screen_name, id_str),
                         "tags": extract_tags(tweet_data)}
-        if len(tweet_data['legacy']['entities']['urls']) > 0:
-            parsed_tweet["expanded_url"] = tweet_data['legacy']['entities']['urls'][0]['expanded_url']
+
+        if 'urls' in tweet_data['entities']:
+            parsed_tweet["expanded_url"] = tweet_data['entities']['urls'][0]['expanded_url']
             parsed_tweet["full_text"] = replace_urls(parsed_tweet["full_text"],
-                                                     tweet_data['legacy']['entities']['urls'])
+                                                     tweet_data['entities']['urls'])
         return parsed_tweet
