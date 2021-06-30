@@ -63,3 +63,4 @@ Notes:
 so submitting a large number of bookmarks can take a long time.
 - The Twitter Bookmark responses captured above are from the non-public API, 
   and there will likely be breaking changes to the response structure in the future. 
+  Most recent breaking change to the response data was in June 2021.
